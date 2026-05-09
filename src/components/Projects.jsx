@@ -20,7 +20,7 @@ import { FaExternalLinkAlt } from 'react-icons/fa';
 import PixelTransition from './PixelTransition';
 
 // Import your images
-import tawakkolImg from '../assets/tawakkol.png';
+import tawakkolImg from '../assets/Tawakkol.png';
 import wiqarImg from '../assets/wiqar.png';
 import pinkinkImg from '../assets/Pinkink.png';
 import storeImg from '../assets/agri.png';
