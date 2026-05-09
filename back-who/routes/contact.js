@@ -16,20 +16,16 @@ router.post('/', async (req, res) => {
       });
     }
     
-    // Save to database (if MongoDB is connected)
-    try {
-      const contact = new Contact({ name, email, subject, company, position, message });
-      await contact.save();
-      console.log('✅ Contact saved to database');
-    } catch (dbError) {
-      console.log('⚠️ Database not connected, skipping save');
-    }
+    // Save to database
+    const contact = new Contact({ name, email, subject, company, position, message });
+    await contact.save();
+    console.log('✅ Contact saved to database');
     
-    // Send emails via Resend
-    await Promise.all([
-      sendAdminEmail({ name, email, subject, company, position, message }),
-      sendAutoReply({ name, email, subject, message })
-    ]);
+    // Send email to YOU (this works with Resend)
+    await sendAdminEmail({ name, email, subject, company, position, message });
+    
+    // Auto-reply is optional - if Resend blocks it, the form still works
+    await sendAutoReply({ name, email, message }).catch(e => console.log('Auto-reply skipped'));
     
     res.status(201).json({
       success: true,
