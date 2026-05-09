@@ -1,0 +1,20 @@
+/* index.css or App.css */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body, html {
+  overflow-x: hidden;
+}
+
+/* Style your content containers */
+.content-container {
+  background: rgba(0, 0, 0, 0.7); /* Semi-transparent background for readability */
+  backdrop-filter: blur(10px); /* Optional: blur effect for better text readability */
+  border-radius: 12px;
+  padding: 20px;
+  margin: 20px;
+  color: white; /* Ensure text is visible against the background */
+}
