@@ -10,11 +10,30 @@ dotenv.config();
 
 const app = express();
 
+// CORS configuration - Allow multiple frontend URLs
+const allowedOrigins = [
+  process.env.FRONTEND_URL,
+  'https://portfolio-sami-tawny.vercel.app',
+  'http://localhost:5173',
+  'http://localhost:3000'
+].filter(Boolean); // Remove undefined values
+
 // Middleware
 app.use(cors({
-  origin: process.env.FRONTEND_URL || 'http://localhost:5173',
-  credentials: true
+  origin: function(origin, callback) {
+    // Allow requests with no origin (like mobile apps, curl, etc.)
+    if (!origin) return callback(null, true);
+    if (allowedOrigins.indexOf(origin) === -1) {
+      console.warn(`Origin ${origin} not allowed by CORS`);
+      return callback(null, false);
+    }
+    return callback(null, true);
+  },
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
 }));
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
@@ -24,7 +43,7 @@ app.use((req, res, next) => {
   next();
 });
 
-// MongoDB Connection (temporarily comment out if not ready)
+// MongoDB Connection
 const connectDB = async () => {
   try {
     if (process.env.MONGODB_URI) {
@@ -38,12 +57,13 @@ const connectDB = async () => {
   }
 };
 
-// Routes (comment out if routes don't exist yet)
+// Routes
 try {
   const contactRoutes = require('./routes/contact');
   app.use('/api/contact', contactRoutes);
+  console.log('✅ Contact routes loaded');
 } catch (error) {
-  console.log('⚠️ Contact routes not yet created');
+  console.log('⚠️ Contact routes not yet created:', error.message);
 }
 
 // Health check
@@ -51,11 +71,13 @@ app.get('/api/health', (req, res) => {
   res.json({ 
     status: 'OK', 
     message: 'Server is running',
-    timestamp: new Date().toISOString()
+    timestamp: new Date().toISOString(),
+    frontendUrl: process.env.FRONTEND_URL,
+    environment: process.env.NODE_ENV
   });
 });
 
-// 404 handler - FIXED: removed the problematic '*'
+// 404 handler
 app.use((req, res) => {
   res.status(404).json({ 
     success: false, 
@@ -65,7 +87,7 @@ app.use((req, res) => {
 
 // Error handling middleware
 app.use((err, req, res, next) => {
-  console.error(err.stack);
+  console.error('Error:', err.stack);
   res.status(500).json({ 
     success: false, 
     message: 'Something went wrong!' 
@@ -79,12 +101,15 @@ connectDB().then(() => {
   app.listen(PORT, () => {
     console.log(`🚀 Server running on port ${PORT}`);
     console.log(`📍 Environment: ${process.env.NODE_ENV || 'development'}`);
+    console.log(`🔗 Frontend URL: ${process.env.FRONTEND_URL || 'http://localhost:5173'}`);
     console.log(`📧 Email service: Ready`);
+    console.log(`✅ CORS enabled for: ${allowedOrigins.join(', ')}`);
   });
 }).catch((error) => {
   console.error('Failed to connect to database:', error);
   // Still start server even without database
   app.listen(PORT, () => {
     console.log(`🚀 Server running on port ${PORT} (without database)`);
+    console.log(`🔗 Frontend URL: ${process.env.FRONTEND_URL || 'http://localhost:5173'}`);
   });
 });

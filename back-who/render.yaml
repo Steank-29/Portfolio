@@ -1,0 +1,23 @@
+# render.yaml
+services:
+  - type: web
+    name: sami-portfolio-backend
+    runtime: node
+    plan: free
+    buildCommand: npm install
+    startCommand: npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 10000
+      - key: MONGODB_URI
+        sync: false
+      - key: RESEND_API_KEY
+        sync: false
+      - key: FROM_EMAIL
+        value: onboarding@resend.dev
+      - key: FROM_NAME
+        value: Sami Jelassi Portfolio
+      - key: FRONTEND_URL
+        sync: false
